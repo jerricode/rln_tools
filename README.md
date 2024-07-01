@@ -2,6 +2,8 @@
 
 Project started 07/01/2024
 
+Uses python 3.12 venv
+
 ## Objective
 
 Create a python program that plots particle orientations described in a relion STAR file as a 2D plot in the style of cryosparc viewing direction distribution plot.
