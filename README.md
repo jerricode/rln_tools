@@ -10,6 +10,9 @@ Create a python program that plots particle orientations described in a relion S
 
 ## Program outline draft (WIP)
 
+**Learning goals**
+* Try to use as few external packages as possible, i.e. make my own star file handler function
+
 ### Basic functionality outline:
 
 1) Parse relion STAR file, extract relevant coordinates, convert if needed (unclear yet)
@@ -19,4 +22,5 @@ Create a python program that plots particle orientations described in a relion S
 ### Additional functionality 
 
 1) Deal with datasets refined with symmetry
-2) ???
+2) Plot by class if done on a 3D class file?
+3) ...
