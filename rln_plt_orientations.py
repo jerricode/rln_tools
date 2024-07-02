@@ -1,5 +1,6 @@
-import numpy as np
+from numpy import pi as pi
 from matplotlib import pyplot as plt
+from sys import argv
 
 def parse_star(starfile) -> list:
     # Open the star file, parse it and return as a list
@@ -14,6 +15,7 @@ def parse_star(starfile) -> list:
     return output
 
 def metadata_index(starfile: list, metadata_label: str) -> int:
+    
     # Find index of metadata label of interest and convert to python numbering
     
     label = 0
@@ -26,7 +28,7 @@ def metadata_index(starfile: list, metadata_label: str) -> int:
     return label-1
 
 def radians(degree: float) -> float:
-    return degree * (np.pi / 180)
+    return degree * (pi / 180)
 
 def bin(angles: tuple, bins: dict) -> tuple:
     rot = angles[0]
@@ -51,10 +53,15 @@ def bin(angles: tuple, bins: dict) -> tuple:
     
     return rot_bin, tilt_bin
 
-if __name__ == "__main__":
-    # Parse star file and figure out metadata indices to extract data from
+def main():
+    # Try to parse star file and figure out metadata indices to extract data from
     
-    star = parse_star("c1/run_it025_data.star")
+    try:
+        star = parse_star(argv[1])
+    except:
+        print("Please specify an input STAR file after the program name")
+        exit()
+    
     rot = metadata_index(star, '_rlnAngleRot')
     tilt = metadata_index(star, '_rlnAngleTilt')
 
@@ -74,7 +81,7 @@ if __name__ == "__main__":
         converted.append((radians(rot), radians(tilt)))
 
     # Setup data structure to bin the converted coordinates into
-    # TODO: make bin size dynamic
+    # TODO: make bin size dynamic based on orientational sampling of the data
     # TODO: This doesn't seem very efficient and takes a while to run... but it works
 
     bin_size = 64
@@ -83,20 +90,25 @@ if __name__ == "__main__":
 
     for x in bin_range:
         for y in bin_range:
-            bins[(x*(2*np.pi / bin_size), y*(np.pi / bin_size))] = 0
+            bins[(x*(2*pi / bin_size), y*(pi / bin_size))] = 0
     
     for angle in converted:
         bins[bin(angle, bins)] += 1
 
-    # Plot the data
+    # Plot the viewing distribution
 
     x, y = zip(*bins)
     colors = bins.values()
     plt.scatter(x, y, s=40, c=colors, marker="H", cmap='rainbow')
 
-    plt.xticks([-1*(np.pi), -1*((3*np.pi)/4), -1*((2*np.pi)/4), -1*((1*np.pi)/4), 0, 1*((1*np.pi)/4), (2*np.pi)/4, (3*np.pi)/4, (4*np.pi)/4], ['-π', '-3π/4', '-π/2', '-π/4', '0', 'π/4', 'π/2', '3π/4', 'π'])
-    plt.yticks([-1*((2*np.pi)/4), -1*((1*np.pi)/4), 0, 1*((1*np.pi)/4), (2*np.pi)/4], ['-π/2', '-π/4', '0', 'π/4', 'π/2'])
+    plt.xticks([-1*(pi), -1*((3*pi)/4), -1*((2*pi)/4), -1*((1*pi)/4), 0, 1*((1*pi)/4), (2*pi)/4, (3*pi)/4, (4*pi)/4], \
+        ['-π', '-3π/4', '-π/2', '-π/4', '0', 'π/4', 'π/2', '3π/4', 'π'])
+    plt.yticks([-1*((2*pi)/4), -1*((1*pi)/4), 0, 1*((1*pi)/4), (2*pi)/4], \
+        ['-π/2', '-π/4', '0', 'π/4', 'π/2'])
 
-
+    plt.xlabel("Azimuth")
+    plt.ylabel("Elevation")
     plt.tight_layout()
     plt.show()
+
+main()
