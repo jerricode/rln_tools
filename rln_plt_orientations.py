@@ -1,4 +1,4 @@
-from numpy import pi as pi
+import numpy as np
 from matplotlib import pyplot as plt
 from sys import argv
 
@@ -28,87 +28,49 @@ def metadata_index(starfile: list, metadata_label: str) -> int:
     return label-1
 
 def radians(degree: float) -> float:
-    return degree * (pi / 180)
+    return degree * (np.pi / 180)
 
-def bin(angles: tuple, bins: dict) -> tuple:
-    rot = angles[0]
-    tilt = angles[1]
-    rot_bins = []
-    tilt_bins = []
+def plot(angles: list) -> plt:
+    # Plot the data as a hexbin heatmap
+    # TODO: make bin size dynamic based on orientational sampling of the data
 
-    for key in bins.keys():
-        rot_bins.append(key[0])
-        tilt_bins.append(key[1])
+    x, y = zip(*angles)
+    gridsize = 64
 
-    rot_bin = float()
-    tilt_bin = float()
-    
-    for angle in rot_bins:
-        if rot >= angle:
-            rot_bin = angle
-    
-    for angle in tilt_bins:
-        if tilt >= angle:
-            tilt_bin = angle
-    
-    return rot_bin, tilt_bin
+    plt.hexbin(x, y, gridsize=gridsize, cmap='jet', mincnt=1)
+    plt.xlim(-1*np.pi, np.pi)
+    plt.ylim(-1*(np.pi/2), np.pi/2)
+
+    plt.xticks([-1*(np.pi), -1*((3*np.pi)/4), -1*((2*np.pi)/4), -1*((1*np.pi)/4), 0, 1*((1*np.pi)/4), (2*np.pi)/4, (3*np.pi)/4, (4*np.pi)/4], \
+        ['-π', '-3π/4', '-π/2', '-π/4', '0', 'π/4', 'π/2', '3π/4', 'π'])
+    plt.yticks([-1*((2*np.pi)/4), -1*((1*np.pi)/4), 0, 1*((1*np.pi)/4), (2*np.pi)/4], \
+        ['-π/2', '-π/4', '0', 'π/4', 'π/2'])
+
+    plt.colorbar(label='# of particles')
+    plt.xlabel('Azimuth')
+    plt.ylabel('Elevation')
+    plt.tight_layout()
+    plt.show()
 
 def main():
     # Try to parse star file and figure out metadata indices to extract data from
-    
     try:
         star = parse_star(argv[1])
     except:
         print("Please specify an input STAR file after the program name")
         exit()
     
+    # Get the metadata indices of interest for plotting
     rot = metadata_index(star, '_rlnAngleRot')
     tilt = metadata_index(star, '_rlnAngleTilt')
 
-    # Extract angles of interest (rotation, tilt) and output as a tuple
-
-    angles = []
-
+    # Extract angles of interest (rotation, tilt), convert to radians, output as a tuple
+    angles_radians = []
     for row in star:
-        if len(row) > 10:
-            angles.append((float(row[rot]), (float(row[tilt])-90)))
-
-    # Convert angles to radians
-
-    converted = []
-
-    for rot, tilt in angles:
-        converted.append((radians(rot), radians(tilt)))
-
-    # Setup data structure to bin the converted coordinates into
-    # TODO: make bin size dynamic based on orientational sampling of the data
-    # TODO: This doesn't seem very efficient and takes a while to run... but it works
-
-    bin_size = 64
-    bin_range = range((-1 * bin_size//2), (bin_size//2))
-    bins = dict()
-
-    for x in bin_range:
-        for y in bin_range:
-            bins[(x*(2*pi / bin_size), y*(pi / bin_size))] = 0
+        if len(row) > 10: # Skip the header portion of the file
+            angles_radians.append((radians(float(row[rot])), (radians(float(row[tilt])-90))))
     
-    for angle in converted:
-        bins[bin(angle, bins)] += 1
-
-    # Plot the viewing distribution
-
-    x, y = zip(*bins)
-    colors = bins.values()
-    plt.scatter(x, y, s=40, c=colors, marker="H", cmap='rainbow')
-
-    plt.xticks([-1*(pi), -1*((3*pi)/4), -1*((2*pi)/4), -1*((1*pi)/4), 0, 1*((1*pi)/4), (2*pi)/4, (3*pi)/4, (4*pi)/4], \
-        ['-π', '-3π/4', '-π/2', '-π/4', '0', 'π/4', 'π/2', '3π/4', 'π'])
-    plt.yticks([-1*((2*pi)/4), -1*((1*pi)/4), 0, 1*((1*pi)/4), (2*pi)/4], \
-        ['-π/2', '-π/4', '0', 'π/4', 'π/2'])
-
-    plt.xlabel("Azimuth")
-    plt.ylabel("Elevation")
-    plt.tight_layout()
-    plt.show()
+    # Plot the converted angles as a hexbin heatmap
+    plot(angles_radians)
 
 main()
