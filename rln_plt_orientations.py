@@ -50,6 +50,7 @@ def plot(angles: list) -> plt:
     plt.xlabel('Azimuth')
     plt.ylabel('Elevation')
     plt.tight_layout()
+    plt.savefig('orientations.svg', format='svg', metadata={'Description' : f'Generated from {argv[1]}'})
     plt.show()
 
 def main():
