@@ -1,31 +1,13 @@
+"""
+
+Plot refined particle image orientations from a relion refinement job output STAR file as a heatmap.
+
+"""
+
 import numpy as np
 from matplotlib import pyplot as plt
 from sys import argv
-
-def parse_star(starfile) -> list:
-    # Open the star file, parse it and return as a list
-    
-    output = []
-    
-    with open(starfile, 'r') as star:
-        for row in star:
-            row = row.strip().split()
-            output.append(row)
-    
-    return output
-
-def metadata_index(starfile: list, metadata_label: str) -> int:
-    
-    # Find index of metadata label of interest and convert to python numbering
-    
-    label = 0
-    
-    for line in starfile:
-        if len(line) < 15 and len(line) > 1:
-            if line[0] == metadata_label:
-                label = int(line[1][1:])
-    
-    return label-1
+import rln_starparser
 
 def radians(degree: float) -> float:
     return degree * (np.pi / 180)
@@ -53,17 +35,17 @@ def plot(angles: list) -> plt:
     plt.savefig('orientations.svg', format='svg', metadata={'Description' : f'Generated from {argv[1]}'})
     plt.show()
 
-def main():
+def plot_orientations():
     # Try to parse star file and figure out metadata indices to extract data from
     try:
-        star = parse_star(argv[1])
+        star = rln_starparser.parse_star(argv[1])
     except:
         print("Please specify an input STAR file after the program name")
         exit()
     
     # Get the metadata indices of interest for plotting
-    rot = metadata_index(star, '_rlnAngleRot')
-    tilt = metadata_index(star, '_rlnAngleTilt')
+    rot = rln_starparser.metadata_index(star, '_rlnAngleRot')
+    tilt = rln_starparser.metadata_index(star, '_rlnAngleTilt')
 
     # Extract angles of interest (rotation, tilt), convert to radians, output as a tuple
     angles_radians = []
@@ -74,4 +56,5 @@ def main():
     # Plot the converted angles as a hexbin heatmap
     plot(angles_radians)
 
-main()
+if __name__ == "__main__":
+    plot_orientations()
