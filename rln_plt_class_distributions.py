@@ -41,7 +41,7 @@ def plot(dataset: dict):
 
     for classno in classes:
         numbers = [dataset[iteration][classno] for iteration in dataset]
-        plt.plot(iterations, numbers, label=classno)
+        plt.plot(iterations, numbers, label=classno, linewidth=3.0)
 
     # Formatting
 
