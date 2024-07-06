@@ -4,25 +4,25 @@ Tools used to parse input STAR files from relion jobs and extract requested data
 
 """
 
-def parse_star(starfile) -> list:
+def parse_star(starfile: str) -> list:
     
     # Open the star file, parse it and return as a list
     
-    output = []
+    star = []
     
-    with open(starfile, 'r') as star:
-        for row in star:
+    with open(starfile, 'r') as file:
+        for row in file:
             row = row.strip().split()
-            output.append(row)
+            star.append(row)
     
-    return output
+    return star
 
-def metadata_index(star: list, metadata_label: str) -> int:
+def metadata_index(starfile: str, metadata_label: str) -> int:
     
     # Find index of metadata label of interest and convert to python numbering
     
+    star = parse_star(starfile)
     label = 0
-    
     for row in star:
         if len(row) < 15 and len(row) > 1:
             if row[0] == metadata_label:
@@ -30,16 +30,19 @@ def metadata_index(star: list, metadata_label: str) -> int:
     
     return label-1
 
-def metadata_column(star: list, metadata_label: str) -> list:
+def metadata_column(starfile: str, metadata_label: str) -> list:
 
-    label = metadata_index(star, metadata_label)
-    output = []
+    # Extract metadata column from specified label into a list
+
+    star = parse_star(starfile)
+    label = metadata_index(starfile, metadata_label)
+    data = []
 
     for row in star:
         if len(row) > 10:
-            output.append(row[label])
+            data.append(row[label])
 
-    return output
+    return data
 
 if __name__ == "__main__":
     pass
