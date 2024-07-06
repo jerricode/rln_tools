@@ -5,7 +5,7 @@ Plot refined particle image orientations from a relion refinement job output STA
 """
 
 import numpy as np
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from sys import argv
 import rln_starparser
 
@@ -32,20 +32,21 @@ def plot(angles: list) -> plt:
     plt.xlabel('Azimuth')
     plt.ylabel('Elevation')
     plt.tight_layout()
-    # plt.savefig('orientations.svg', format='svg', metadata={'Description' : f'Generated from {argv[1]}'})
+    plt.savefig('orientations.svg', format='svg', metadata={'Description' : f'Generated from {argv[1]}'})
+    
     plt.show()
 
 def plot_orientations():
     # Try to parse star file and figure out metadata indices to extract data from
     try:
-        star = rln_starparser.parse_star(argv[1])
+        starfile = argv[1]
     except:
         print("Please specify an input STAR file after the program name")
         exit()
     
     # Get the rot and tilt angles from the STAR file
-    rot = rln_starparser.metadata_column(star, '_rlnAngleRot')
-    tilt = rln_starparser.metadata_column(star, '_rlnAngleTilt')
+    rot = rln_starparser.metadata_column(starfile, '_rlnAngleRot')
+    tilt = rln_starparser.metadata_column(starfile, '_rlnAngleTilt')
     angles = zip(rot, tilt)
 
     # Convert rotations and tilts to radians, output as tuple
