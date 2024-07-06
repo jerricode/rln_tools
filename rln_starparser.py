@@ -4,6 +4,7 @@ Tools used to parse input STAR files from relion jobs and extract requested data
 
 """
 
+
 def parse_star(starfile: str) -> list:
     
     # Open the star file, parse it and return as a list
@@ -23,6 +24,7 @@ def metadata_index(starfile: str, metadata_label: str) -> int:
     
     star = parse_star(starfile)
     label = 0
+
     for row in star:
         if len(row) < 15 and len(row) > 1:
             if row[0] == metadata_label:

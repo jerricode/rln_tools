@@ -33,7 +33,7 @@ def plot(angles: list) -> plt:
     plt.ylabel('Elevation')
     plt.tight_layout()
     plt.savefig('orientations.svg', format='svg', metadata={'Description' : f'Generated from {argv[1]}'})
-    
+
     plt.show()
 
 def plot_orientations():
@@ -45,8 +45,10 @@ def plot_orientations():
         exit()
     
     # Get the rot and tilt angles from the STAR file
+
     rot = rln_starparser.metadata_column(starfile, '_rlnAngleRot')
     tilt = rln_starparser.metadata_column(starfile, '_rlnAngleTilt')
+
     angles = zip(rot, tilt)
 
     # Convert rotations and tilts to radians, output as tuple
